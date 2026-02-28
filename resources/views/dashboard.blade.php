@@ -43,7 +43,7 @@
                         <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
                             <p class="font-semibold text-slate-800">{{ $coupon->code }}</p>
                             <p class="mt-1 text-xs text-slate-500">
-                                {{ ucfirst($coupon->type) }} • {{ $coupon->type === 'percent' ? $coupon->value.'%' : 'RM '.number_format($coupon->value, 2) }}
+                                {{ ucfirst($coupon->type) }} • {{ $coupon->type === 'percent' ? $coupon->value.'%' : 'USD '.number_format($coupon->value, 2) }}
                             </p>
                         </div>
                     @empty

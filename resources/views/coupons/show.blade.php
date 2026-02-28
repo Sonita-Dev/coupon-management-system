@@ -19,11 +19,11 @@
             <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                 <div><dt class="text-slate-500">Code</dt><dd class="font-semibold text-slate-900">{{ $coupon->code }}</dd></div>
                 <div><dt class="text-slate-500">Type</dt><dd class="font-semibold text-slate-900">{{ ucfirst($coupon->type) }}</dd></div>
-                <div><dt class="text-slate-500">Value</dt><dd class="font-semibold text-slate-900">{{ $coupon->type === 'percent' ? $coupon->value.'%' : 'RM '.number_format($coupon->value, 2) }}</dd></div>
+                <div><dt class="text-slate-500">Value</dt><dd class="font-semibold text-slate-900">{{ $coupon->type === 'percent' ? $coupon->value.'%' : 'USD '.number_format($coupon->value, 2) }}</dd></div>
                 <div><dt class="text-slate-500">Status</dt><dd><span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">{{ $status }}</span></dd></div>
                 <div><dt class="text-slate-500">Start date</dt><dd class="font-semibold text-slate-900">{{ $coupon->start_date?->format('Y-m-d') ?? '-' }}</dd></div>
                 <div><dt class="text-slate-500">End date</dt><dd class="font-semibold text-slate-900">{{ $coupon->end_date?->format('Y-m-d') ?? 'No end date' }}</dd></div>
-                <div><dt class="text-slate-500">Minimum order</dt><dd class="font-semibold text-slate-900">{{ $coupon->min_order_amount ? 'RM '.number_format($coupon->min_order_amount, 2) : '-' }}</dd></div>
+                <div><dt class="text-slate-500">Minimum order</dt><dd class="font-semibold text-slate-900">{{ $coupon->min_order_amount ? 'USD '.number_format($coupon->min_order_amount, 2) : '-' }}</dd></div>
                 <div><dt class="text-slate-500">Usage</dt><dd class="font-semibold text-slate-900">{{ $coupon->used_count }}{{ is_null($coupon->max_uses) ? ' (unlimited)' : ' / '.$coupon->max_uses }}</dd></div>
                 <div class="md:col-span-2"><dt class="text-slate-500">Description</dt><dd class="font-semibold text-slate-900">{{ $coupon->description ?: 'No description provided.' }}</dd></div>
             </dl>
