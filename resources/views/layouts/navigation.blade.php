@@ -38,10 +38,18 @@
                             </svg>
                         </button>
                     </x-slot>
-
                     <x-slot name="content">
+                        <div class="px-4 py-2 border-b border-gray-100">
+                            <p class="text-xs font-semibold text-gray-800 truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                        </div>
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Profile
+                            </span>
                         </x-dropdown-link>
 
                         <form method="POST" action="{{ route('logout') }}">
