@@ -1,4 +1,11 @@
 <x-guest-layout>
+    <div class="mb-8 text-center">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-indigo-600">Coupon Management System</p>
+        <h1 class="mt-2 text-2xl font-bold text-slate-900">Sign in</h1>
+        <p class="mt-2 text-sm text-slate-600">Welcome back. Enter your account credentials to continue.</p>
+    </div>
+
+    <x-auth-session-status class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700" :status="session('status')" />
     <!-- Heading -->
     <div class="mb-8">
         <h2 class="text-3xl font-bold text-gray-900">Welcome back</h2>
@@ -15,6 +22,7 @@
         </div>
     @endif
 
+    <form method="POST" action="{{ route('login') }}" class="space-y-5">
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
 

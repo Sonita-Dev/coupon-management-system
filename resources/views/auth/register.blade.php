@@ -8,7 +8,6 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-5">
         @csrf
 
-        <!-- Name -->
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
             <div class="relative">
