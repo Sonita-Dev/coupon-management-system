@@ -89,7 +89,17 @@ class CouponController extends Controller
 
     public function applyForm(): View
     {
-        return view('coupons.apply');
+        $activeCoupons = Coupon::query()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now()->toDateString());
+            })
+            ->orderByDesc('id')
+            ->limit(6)
+            ->get(['id', 'code', 'type', 'value']);
+
+        return view('coupons.apply', compact('activeCoupons'));
     }
 
     public function apply(Request $request): RedirectResponse
@@ -99,10 +109,10 @@ class CouponController extends Controller
             'cart_total' => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        $code = $validated['code'];
+        $code = strtoupper(trim($validated['code']));
         $cartTotal = (float) $validated['cart_total'];
 
-        $coupon = Coupon::where('code', $code)->first();
+        $coupon = Coupon::whereRaw('UPPER(code) = ?', [$code])->first();
 
         if (! $coupon) {
             return back()
