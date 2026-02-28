@@ -1,92 +1,41 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Coupon details</h2>
+                <p class="mt-1 text-sm text-slate-600">Inspect coupon configuration and usage status.</p>
+            </div>
+            <a href="{{ route('coupons.index') }}" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Back</a>
+        </div>
+    </x-slot>
 
-@section('title', 'Coupon Details')
+    @php
+        $isExpired = $coupon->end_date && $coupon->end_date->isPast();
+        $status = ! $coupon->is_active ? 'Inactive' : ($isExpired ? 'Expired' : 'Active');
+    @endphp
 
-@section('content')
-    <div class="flex justify-between items-center">
-        <h1>Coupon Details</h1>
-        <a href="{{ route('coupons.index') }}" class="btn btn-outline">Back to list</a>
+    <div class="mx-auto mt-8 max-w-4xl space-y-5 px-4 sm:px-6 lg:px-8">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <dl class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+                <div><dt class="text-slate-500">Code</dt><dd class="font-semibold text-slate-900">{{ $coupon->code }}</dd></div>
+                <div><dt class="text-slate-500">Type</dt><dd class="font-semibold text-slate-900">{{ ucfirst($coupon->type) }}</dd></div>
+                <div><dt class="text-slate-500">Value</dt><dd class="font-semibold text-slate-900">{{ $coupon->type === 'percent' ? $coupon->value.'%' : 'RM '.number_format($coupon->value, 2) }}</dd></div>
+                <div><dt class="text-slate-500">Status</dt><dd><span class="rounded-full px-2.5 py-1 text-xs font-medium {{ $status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">{{ $status }}</span></dd></div>
+                <div><dt class="text-slate-500">Start date</dt><dd class="font-semibold text-slate-900">{{ $coupon->start_date?->format('Y-m-d') ?? '-' }}</dd></div>
+                <div><dt class="text-slate-500">End date</dt><dd class="font-semibold text-slate-900">{{ $coupon->end_date?->format('Y-m-d') ?? 'No end date' }}</dd></div>
+                <div><dt class="text-slate-500">Minimum order</dt><dd class="font-semibold text-slate-900">{{ $coupon->min_order_amount ? 'RM '.number_format($coupon->min_order_amount, 2) : '-' }}</dd></div>
+                <div><dt class="text-slate-500">Usage</dt><dd class="font-semibold text-slate-900">{{ $coupon->used_count }}{{ is_null($coupon->max_uses) ? ' (unlimited)' : ' / '.$coupon->max_uses }}</dd></div>
+                <div class="md:col-span-2"><dt class="text-slate-500">Description</dt><dd class="font-semibold text-slate-900">{{ $coupon->description ?: 'No description provided.' }}</dd></div>
+            </dl>
+        </div>
+
+        <div class="flex gap-3">
+            <a href="{{ route('coupons.edit', $coupon) }}" class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500">Edit</a>
+            <form method="POST" action="{{ route('coupons.destroy', $coupon) }}" onsubmit="return confirm('Delete this coupon?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Delete</button>
+            </form>
+        </div>
     </div>
-
-    <div class="mt-md">
-        <table>
-            <tbody>
-            <tr>
-                <th>Code</th>
-                <td>{{ $coupon->code }}</td>
-            </tr>
-            <tr>
-                <th>Type</th>
-                <td>{{ ucfirst($coupon->type) }}</td>
-            </tr>
-            <tr>
-                <th>Value</th>
-                <td>
-                    @if($coupon->type === 'percent')
-                        {{ $coupon->value }}%
-                    @else
-                        RM {{ number_format($coupon->value, 2) }}
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ $coupon->description }}</td>
-            </tr>
-            <tr>
-                <th>Start Date</th>
-                <td>{{ $coupon->start_date?->format('Y-m-d') ?? '-' }}</td>
-            </tr>
-            <tr>
-                <th>End Date</th>
-                <td>{{ $coupon->end_date?->format('Y-m-d') ?? 'No end date' }}</td>
-            </tr>
-            <tr>
-                <th>Minimum Order Amount</th>
-                <td>
-                    @if($coupon->min_order_amount)
-                        RM {{ number_format($coupon->min_order_amount, 2) }}
-                    @else
-                        -
-                    @endif
-                </td>
-            </tr>
-            <tr>
-                <th>Max Uses</th>
-                <td>{{ $coupon->max_uses ?? 'Unlimited' }}</td>
-            </tr>
-            <tr>
-                <th>Used Count</th>
-                <td>{{ $coupon->used_count }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>
-                    @php
-                        $now = now()->toDateString();
-                        $isExpired = $coupon->end_date && $coupon->end_date->lt($now);
-                    @endphp
-                    @if(!$coupon->is_active)
-                        <span class="badge badge-danger">Inactive</span>
-                    @elseif($isExpired)
-                        <span class="badge badge-danger">Expired</span>
-                    @else
-                        <span class="badge badge-success">Active</span>
-                    @endif
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="mt-md">
-        <a href="{{ route('coupons.edit', $coupon) }}" class="btn">Edit</a>
-        <form action="{{ route('coupons.destroy', $coupon) }}" method="POST" style="display:inline"
-              onsubmit="return confirm('Delete this coupon?');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-    </div>
-@endsection
-
+</x-app-layout>
