@@ -1,105 +1,59 @@
-## Coupon Management System (Laravel)
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-This is a simple **Coupon Management System** built with **Laravel**, **Blade**, and **MySQL**.  
-It provides an admin-only panel to manage discount coupons and a small page to **test/apply** coupons against a fake cart total.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-> NOTE: This repository assumes a standard Laravel installation.  
-> If you have not yet created one, follow the steps below.
+## About Laravel
 
-### 1. Create the Laravel project
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-Make sure you have PHP, Composer, and MySQL installed, then in this folder run:
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-```bash
-composer create-project laravel/laravel . 
-```
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-If the folder is not empty, you can instead create Laravel elsewhere and copy the feature files from this repo into your project.
+## Learning Laravel
 
-### 2. Install and configure Laravel Breeze (admin auth)
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-```bash
-composer require laravel/breeze --dev
-php artisan breeze:install blade
-npm install
-npm run build
-php artisan migrate
-```
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-Create a single admin user (via `php artisan tinker` or registration if enabled) and restrict coupon routes to authenticated users.
+## Laravel Sponsors
 
-### 3. Coupon feature overview
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-The system includes:
+### Premium Partners
 
-- **Admin authentication** using Laravel Breeze (`auth` middleware).
-- **Coupons table** with:
-  - `code`, `type` (`fixed`/`percent`), `value`
-  - `description`, `start_date`, `end_date`
-  - `min_order_amount`, `max_uses`, `used_count`
-  - `is_active` flag and soft deletes
-- **Dashboard** showing:
-  - Total coupons
-  - Active coupons
-  - Expired coupons
-  - Total used count
-- **CRUD for coupons**:
-  - List with search & filters (by code/status/active/expired)
-  - Create with validation (unique code, positive value, date rules)
-  - View, edit, soft-delete
-- **Coupon apply test page**:
-  - Enter coupon code and fake cart total
-  - Validates coupon (exists, active, not expired, min order, remaining uses)
-  - Shows discount amount, new total, and clear error messages
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-### 4. Files to add/update in your Laravel app
+## Contributing
 
-Once you have a Laravel project created, add/update these files (paths are relative to the Laravel root):
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-- `app/Models/Coupon.php`
-- `app/Http/Controllers/CouponController.php`
-- `app/Http/Requests/StoreCouponRequest.php`
-- `app/Http/Requests/UpdateCouponRequest.php`
-- `database/migrations/xxxx_xx_xx_xxxxxx_create_coupons_table.php`
-- `database/seeders/CouponSeeder.php`
-- `routes/web.php` (add coupon routes)
-- `resources/views/layouts/app.blade.php` (or adapt if Breeze already created one)
-- `resources/views/dashboard.blade.php`
-- `resources/views/coupons/*.blade.php` (index/create/edit/show/apply)
+## Code of Conduct
 
-This repository will contain example implementations for each of these.
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-### 5. Database and seeding
+## Security Vulnerabilities
 
-Configure your `.env` with your MySQL credentials, then run:
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-```bash
-php artisan migrate
-php artisan db:seed --class=CouponSeeder
-```
+## License
 
-This seeds **10–15 sample coupons** for testing.
-
-### 6. Running locally
-
-```bash
-php artisan serve
-```
-
-Open `http://localhost:8000` and log in with your admin account.
-
-### 7. Deploying to Vercel (basic setup)
-
-This project includes a minimal `vercel.json` that:
-
-- Installs Composer dependencies
-- Runs Laravel optimization commands
-- Uses `public/index.php` as the entrypoint
-
-You may need to:
-
-- Set environment variables in Vercel (`APP_KEY`, `APP_ENV`, `DB_*`, etc.)
-- Use a managed MySQL database (e.g., PlanetScale, Neon with MySQL compatibility, or another provider)
-
-See `vercel.json` for the exact configuration and adjust according to Vercel/Laravel deployment guides.
-
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

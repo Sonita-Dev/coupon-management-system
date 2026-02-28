@@ -7,9 +7,6 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    /**
-     * Display simple dashboard stats.
-     */
     public function index(): View
     {
         $totalCoupons = Coupon::count();

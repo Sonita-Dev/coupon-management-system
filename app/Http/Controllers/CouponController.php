@@ -11,9 +11,6 @@ use Illuminate\View\View;
 
 class CouponController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): View
     {
         $query = Coupon::query();
@@ -42,17 +39,11 @@ class CouponController extends Controller
         return view('coupons.index', compact('coupons'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         return view('coupons.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreCouponRequest $request): RedirectResponse
     {
         $data = $request->validated();
@@ -65,25 +56,16 @@ class CouponController extends Controller
             ->with('success', 'Coupon created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Coupon $coupon): View
     {
         return view('coupons.show', compact('coupon'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Coupon $coupon): View
     {
         return view('coupons.edit', compact('coupon'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateCouponRequest $request, Coupon $coupon): RedirectResponse
     {
         $data = $request->validated();
@@ -96,9 +78,6 @@ class CouponController extends Controller
             ->with('success', 'Coupon updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage (soft delete).
-     */
     public function destroy(Coupon $coupon): RedirectResponse
     {
         $coupon->delete();
@@ -108,17 +87,11 @@ class CouponController extends Controller
             ->with('success', 'Coupon deleted successfully.');
     }
 
-    /**
-     * Show coupon apply test form.
-     */
     public function applyForm(): View
     {
         return view('coupons.apply');
     }
 
-    /**
-     * Handle coupon apply test submission.
-     */
     public function apply(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -137,7 +110,6 @@ class CouponController extends Controller
                 ->withInput();
         }
 
-        // Validate coupon using the business rules
         if (! $coupon->isCurrentlyValid($cartTotal)) {
             $errorMessage = 'Coupon is not valid for this order.';
 

@@ -31,17 +31,11 @@ class Coupon extends Model
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Scope: only active (flag) coupons.
-     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope: expired by end_date.
-     */
     public function scopeExpired(Builder $query): Builder
     {
         return $query
@@ -49,12 +43,9 @@ class Coupon extends Model
             ->where('end_date', '<', now()->toDateString());
     }
 
-    /**
-     * Check if the coupon is currently valid for usage.
-     */
     public function isCurrentlyValid(float $cartTotal): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -70,16 +61,13 @@ class Coupon extends Model
             return false;
         }
 
-        if (!is_null($this->max_uses) && $this->used_count >= $this->max_uses) {
+        if (! is_null($this->max_uses) && $this->used_count >= $this->max_uses) {
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Calculate discount amount for given cart total.
-     */
     public function calculateDiscount(float $cartTotal): float
     {
         if ($this->type === 'percent') {
