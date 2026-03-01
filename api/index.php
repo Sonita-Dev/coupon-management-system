@@ -2,6 +2,36 @@
 
 declare(strict_types=1);
 
+/**
+ * Serve static files from /public through the PHP runtime.
+ * This avoids Vercel static routing edge cases for Laravel + Vite setups.
+ */
+$requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$requestPath = urldecode($requestUri);
+$publicRoot = realpath(__DIR__.'/../public');
+
+if ($publicRoot !== false && $requestPath !== '/') {
+    $staticExtensions = '/\.(?:css|js|map|json|txt|xml|jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|ttf|eot)$/i';
+
+    if (preg_match($staticExtensions, $requestPath) === 1) {
+        $candidate = realpath($publicRoot.$requestPath);
+        $allowedPrefix = rtrim($publicRoot, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+
+        if ($candidate !== false && str_starts_with($candidate, $allowedPrefix) && is_file($candidate)) {
+            $mimeType = mime_content_type($candidate) ?: 'application/octet-stream';
+            $isManifest = str_ends_with($requestPath, '/manifest.json');
+            $cacheControl = $isManifest
+                ? 'public, max-age=300'
+                : 'public, max-age=31536000, immutable';
+
+            header('Content-Type: '.$mimeType);
+            header('Cache-Control: '.$cacheControl);
+            readfile($candidate);
+            exit;
+        }
+    }
+}
+
 // Vercel's filesystem is read-only except /tmp. Point Laravel cache artifacts there.
 foreach ([
     'APP_SERVICES_CACHE' => '/tmp/services.php',
