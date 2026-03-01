@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCouponRequest extends FormRequest
 {
@@ -14,7 +15,12 @@ class StoreCouponRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:50', 'unique:coupons,code'],
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('coupons', 'code')->whereNull('deleted_at'),
+            ],
             'type' => ['required', 'in:fixed,percent'],
             'value' => ['required', 'numeric', 'gt:0'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -26,4 +32,3 @@ class StoreCouponRequest extends FormRequest
         ];
     }
 }
-
