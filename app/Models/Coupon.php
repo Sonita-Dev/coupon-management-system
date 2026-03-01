@@ -72,7 +72,7 @@ class Coupon extends Model
             return false;
         }
 
-        if ($this->end_date && $this->end_date->isPast()) {
+        if ($this->end_date && $this->end_date->lt(today())) {
             return false;
         }
 
@@ -102,4 +102,3 @@ class Coupon extends Model
         return round($discount, 2);
     }
 }
-

@@ -10,7 +10,7 @@
     </x-slot>
 
     @php
-        $isExpired = $coupon->end_date && $coupon->end_date->isPast();
+        $isExpired = $coupon->end_date && $coupon->end_date->lt(today());
         $status = ! $coupon->is_active ? 'Inactive' : ($isExpired ? 'Expired' : 'Active');
     @endphp
 

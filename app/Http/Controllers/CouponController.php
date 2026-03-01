@@ -127,7 +127,7 @@ class CouponController extends Controller
                 $errorMessage = 'This coupon is inactive.';
             } elseif ($coupon->start_date && $coupon->start_date->isFuture()) {
                 $errorMessage = 'This coupon is not active yet.';
-            } elseif ($coupon->end_date && $coupon->end_date->isPast()) {
+            } elseif ($coupon->end_date && $coupon->end_date->lt(today())) {
                 $errorMessage = 'This coupon has expired.';
             } elseif ($coupon->min_order_amount && $cartTotal < $coupon->min_order_amount) {
                 $errorMessage = 'Cart total does not meet the minimum order amount for this coupon.';
@@ -158,4 +158,3 @@ class CouponController extends Controller
             ->withInput();
     }
 }
-
