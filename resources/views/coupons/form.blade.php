@@ -18,7 +18,7 @@
     </div>
 
     <div>
-        <label for="value" class="mb-2 block text-sm font-medium text-slate-700">Value</label>
+        <label for="value" class="mb-2 block text-sm font-medium text-slate-700">Discount</label>
         <input type="number" step="0.01" id="value" name="value" value="{{ old('value', $coupon->value ?? '') }}"
             class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" required>
         @error('value')<p class="mt-1 text-xs text-rose-600">{{ $message }}</p>@enderror
