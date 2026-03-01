@@ -19,7 +19,9 @@ class StoreCouponRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('coupons', 'code')->whereNull('deleted_at'),
+                Rule::unique('coupons', 'code')->where(function ($query) {
+                    $query->whereNull('deleted_at');
+                }),
             ],
             'type' => ['required', 'in:fixed,percent'],
             'value' => ['required', 'numeric', 'gt:0'],

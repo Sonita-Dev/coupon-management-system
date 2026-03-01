@@ -22,7 +22,9 @@ class UpdateCouponRequest extends FormRequest
                 'string',
                 'max:50',
                 Rule::unique('coupons', 'code')
-                    ->whereNull('deleted_at')
+                    ->where(function ($query) {
+                        $query->whereNull('deleted_at');
+                    })
                     ->ignore($couponId),
             ],
             'type' => ['required', 'in:fixed,percent'],
