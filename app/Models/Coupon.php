@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Coupon extends Model
 {
@@ -30,6 +31,24 @@ class Coupon extends Model
         'end_date' => 'date',
         'is_active' => 'boolean',
     ];
+
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Coupon $coupon): void {
+            if ($coupon->isForceDeleting()) {
+                return;
+            }
+
+            $suffix = '__d_' . $coupon->getKey() . '_' . now()->timestamp;
+            $maxCodeLength = 50;
+            $trimmedCode = Str::limit($coupon->code, $maxCodeLength - strlen($suffix), '');
+
+            $coupon->forceFill([
+                'code' => $trimmedCode . $suffix,
+            ])->saveQuietly();
+        });
+    }
 
     public function scopeActive(Builder $query): Builder
     {

@@ -24,6 +24,12 @@ class CouponValidationTest extends TestCase
 
         $coupon->delete();
 
+<<<<<<< ours
+=======
+        $deletedCoupon = Coupon::withTrashed()->findOrFail($coupon->id);
+        $this->assertNotSame('2028', $deletedCoupon->code);
+
+>>>>>>> theirs
         $response = $this
             ->actingAs($user)
             ->post(route('coupons.store'), [
