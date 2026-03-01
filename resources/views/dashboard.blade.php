@@ -25,10 +25,22 @@
                 <p class="text-sm text-rose-700">Expired</p>
                 <p class="mt-2 text-3xl font-bold text-rose-800">{{ $expiredCoupons }}</p>
             </div>
-            <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm">
-                <p class="text-sm text-indigo-700">Total redemptions</p>
-                <p class="mt-2 text-3xl font-bold text-indigo-800">{{ $totalUsedCount }}</p>
-                <p class="mt-1 text-xs text-indigo-700/80">Avg {{ $usageRate }} uses per coupon</p>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                <p class="text-sm text-amber-700">Inactive</p>
+                <p class="mt-2 text-3xl font-bold text-amber-800">{{ $inactiveCoupons ?? 0 }}</p>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-indigo-700">Total redemptions</p>
+                    <p class="mt-2 text-3xl font-bold text-indigo-800">{{ $totalUsedCount }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-indigo-700/80">Avg usage per coupon</p>
+                    <p class="mt-1 text-2xl font-bold text-indigo-800">{{ $usageRate }}</p>
+                </div>
             </div>
         </div>
 

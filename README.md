@@ -1,107 +1,170 @@
 # Coupon Management System
 
-A Laravel-based coupon management platform for creating, managing, and testing discount coupons with a simple Blade + Tailwind UI.
+A comprehensive Laravel-based coupon management platform for creating, managing, and applying discount coupons with modern web development practices.
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Tech Stack](#tech-stack)
-- [Requirements](#requirements)
-- [Setup & Installation](#setup--installation)
-- [How to Run](#how-to-run)
-- [Core Data Model](#core-data-model)
-- [Core Functionalities](#core-functionalities)
-- [Application Flow](#application-flow)
-- [Authentication](#authentication)
-- [Testing](#testing)
-- [Notes](#notes)
-
-## Project Overview
-This project helps teams:
-- Manage coupon lifecycle (create, edit, delete, activate/deactivate).
-- Track coupon usage and status (active/expired/inactive).
-- Simulate applying a coupon to a cart total to validate business logic.
-- View dashboard metrics to monitor coupon performance.
-
-## Tech Stack
-- **Backend:** Laravel 12 (PHP)
-- **Frontend:** Blade templates + TailwindCSS (via Vite)
-- **Database:** MySQL / MariaDB / PostgreSQL / SQLite (Laravel supported drivers)
-- **Authentication:** Laravel Breeze (routes/controllers scaffolding) with customized Blade UI
-
-## Requirements
-- PHP 8.2+
-- Composer 2+
-- Node.js 18+ and npm
-- A database supported by Laravel
-
-## Setup & Installation
+## 🚀 Quick Start
 
 ```bash
-# 1) Install backend dependencies
-composer install
-
-# 2) Install frontend dependencies
-npm install
-
-# 3) Configure environment
-cp .env.example .env
-php artisan key:generate
-
-# 4) Configure DB credentials in .env
-# DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
-
-# 5) Run migrations and (optional) seeders
-php artisan migrate
-php artisan db:seed
+# Clone and setup in minutes
+git clone <repository-url>
+cd coupon-management-system
+composer run setup
+php artisan serve
 ```
 
-## How to Run
+Visit `http://127.0.0.1:8000` and start managing coupons!
 
+## 📚 Documentation
+
+- **[📖 Complete Documentation](DOCUMENTATION.md)** - Comprehensive guide with setup, features, and API
+- **[🏗️ Architecture Overview](ARCHITECTURE.md)** - System architecture and data flow diagrams
+- **[🔧 Setup Guide](#setup--installation)** - Quick setup instructions below
+
+## ✨ Key Features
+
+- 🎫 **Complete Coupon CRUD** - Create, read, update, delete with soft deletes
+- 💰 **Flexible Discounts** - Fixed amount and percentage-based discounts  
+- 📅 **Advanced Validation** - Date ranges, usage limits, minimum order amounts
+- 🔄 **Smart Code Reuse** - Reuse coupon codes after deletion with unique constraints
+- 🎨 **Modern UI** - Responsive design with Tailwind CSS and Alpine.js
+- 🔐 **Secure Auth** - Laravel Breeze authentication with custom styling
+- 📊 **Analytics Dashboard** - Track coupon performance and usage statistics
+- 🧪 **Comprehensive Testing** - Full test suite with PHPUnit
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Laravel 12.0** - Modern PHP framework
+- **MySQL** - Database with optimized constraints
+- **Eloquent ORM** - Powerful database abstraction
+- **Laravel Breeze** - Authentication scaffold
+
+### Frontend  
+- **Tailwind CSS** - Utility-first CSS framework
+- **Alpine.js** - Lightweight JavaScript for interactivity
+- **Vite** - Fast build tool and dev server
+- **Blade Templates** - Laravel's elegant templating
+
+### Development Tools
+- **PHPUnit** - Testing framework
+- **Laravel Pint** - Code style fixing
+- **Faker** - Test data generation
+
+## 📋 Requirements
+
+- **PHP**: ^8.2
+- **Composer**: Latest version
+- **Node.js**: ^18.0.0  
+- **Database**: MySQL 8.0+ or MariaDB 10.3+
+
+## ⚙️ Setup & Installation
+
+### Automated Setup (Recommended)
 ```bash
-# Terminal A: Laravel app
+composer run setup
+```
+This command handles everything: dependencies, environment setup, migrations, and asset building.
+
+### Manual Setup
+
+#### 1. Install Dependencies
+```bash
+composer install
+npm install
+```
+
+#### 2. Environment Configuration
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Configure your database in `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=coupon_management_system
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+#### 3. Database Setup
+```bash
+php artisan migrate
+php artisan db:seed  # Optional: Load sample data
+```
+
+#### 4. Build Assets
+```bash
+npm run build
+```
+
+## 🏃‍♂️ How to Run
+
+### Development
+```bash
+# Terminal 1: Laravel server
 php artisan serve
 
-# Terminal B: Vite assets
+# Terminal 2: Vite dev server  
 npm run dev
 ```
 
-Open `http://127.0.0.1:8000`.
-
-## Core Data Model
-
-### `coupons` table
-Stores the coupon configuration and lifecycle fields:
-
-```php
-Schema::create('coupons', function (Blueprint $table) {
-    $table->id();
-    $table->string('code')->unique();
-    $table->enum('type', ['fixed', 'percent'])->default('fixed');
-    $table->decimal('value', 10, 2);
-    $table->string('description')->nullable();
-    $table->date('start_date')->nullable();
-    $table->date('end_date')->nullable();
-    $table->decimal('min_order_amount', 10, 2)->nullable();
-    $table->unsignedInteger('max_uses')->nullable();
-    $table->unsignedInteger('used_count')->default(0);
-    $table->boolean('is_active')->default(true);
-    $table->softDeletes();
-    $table->timestamps();
-});
+### Production
+```bash
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm run build
 ```
 
-## Core Functionalities
+## 📊 Core Data Model
 
-### 1) Coupon CRUD
-Implemented by `CouponController` resource methods:
-- `index()` — searchable + status-filtered coupon listing
-- `create()` / `store()` — add new coupon
-- `show()` — view details
-- `edit()` / `update()` — modify coupon settings
-- `destroy()` — soft delete coupon
+### Coupons Table
+```sql
+CREATE TABLE `coupons` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `type` enum('fixed','percent') NOT NULL DEFAULT 'fixed',
+  `value` decimal(10,2) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `min_order_amount` decimal(10,2) DEFAULT NULL,
+  `max_uses` int unsigned DEFAULT NULL,
+  `used_count` int unsigned NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `coupons_code_unique` (`code`,`deleted_at`)
+);
+```
 
-### 2) Coupon validation and discount rules
-Business rules live in `App\Models\Coupon`:
+## 🎯 Core Functionalities
+
+### 1. Coupon Management
+Full CRUD operations with advanced validation:
+
+```php
+// Creating a coupon
+$coupon = Coupon::create([
+    'code' => 'SUMMER20',
+    'type' => 'percent', 
+    'value' => 20,
+    'description' => 'Summer sale discount',
+    'start_date' => now(),
+    'end_date' => now()->addDays(30),
+    'max_uses' => 100,
+    'is_active' => true
+]);
+```
+
+### 2. Smart Validation
+Comprehensive business logic validation:
 
 ```php
 public function isCurrentlyValid(float $cartTotal): bool
@@ -111,12 +174,13 @@ public function isCurrentlyValid(float $cartTotal): bool
     if ($this->end_date && $this->end_date->isPast()) return false;
     if ($this->min_order_amount && $cartTotal < $this->min_order_amount) return false;
     if (! is_null($this->max_uses) && $this->used_count >= $this->max_uses) return false;
-
+    
     return true;
 }
 ```
 
-And discount calculation:
+### 3. Discount Calculation
+Flexible discount logic for different types:
 
 ```php
 public function calculateDiscount(float $cartTotal): float
@@ -129,51 +193,160 @@ public function calculateDiscount(float $cartTotal): float
 }
 ```
 
-### 3) Coupon apply simulation
-`POST /coupons-apply` validates request input, finds coupon dynamically by code, checks validity, calculates discount, increments `used_count`, and returns result data to the UI.
+### 4. Dashboard Analytics
+Real-time coupon performance metrics:
+- Total coupons and active count
+- Usage statistics and redemption rates
+- Recent activity and top performers
 
-### 4) Dashboard analytics
-`DashboardController@index()` computes:
-- total coupons
-- active coupons
-- expired coupons
-- total redemption count
-- average usage rate
-- recent coupons
-- top redeemed coupons
+## 🔄 Application Flow
 
-## Application Flow
-
-### Coupon management flow
-```text
-User -> Coupons index -> Create/Edit form -> Validation -> DB save -> Redirect with flash message
+### Coupon Creation Flow
+```
+User → Create Form → Validation → Database → Success Message
 ```
 
-### Coupon apply flow
-```text
-User input code + cart total
-    -> Controller validates request
-    -> Finds coupon by code
-    -> Validity checks (active/date/min-order/max-uses)
-    -> Calculates discount
-    -> Increments used_count
-    -> Returns result summary to UI
+### Coupon Application Flow  
+```
+User Input → Validation → Business Rules → Discount Calc → Usage Update → Result
 ```
 
-## Authentication
-Authentication routes/controllers are provided by **Laravel Breeze**, while the login/register UI has been customized using Blade/Tailwind components (not the Breeze default page styling).
+### Soft Delete Flow
+```
+Delete Request → Code Modification → Soft Delete → Database Update
+```
 
-## Testing
+## 🔐 Authentication
+
+Built on **Laravel Breeze** with custom UI:
+- Secure registration and login
+- Email verification (optional)
+- Password reset functionality
+- Profile management
+- Session management
+
+## 🧪 Testing
 
 ```bash
-# Run test suite
+# Run all tests
 php artisan test
 
-# Optional: code style check if Pint is available
+# Run with coverage
+php artisan test --coverage
+
+# Code style check
 ./vendor/bin/pint --test
 ```
 
-## Notes
-- UI is built with **Blade templates only** and Tailwind utility classes.
-- Coupon listing and dashboard data are fully dynamic from database records.
-- Seeder data is for local/demo usage only and can be replaced with production data sources.
+### Test Coverage
+- Coupon CRUD operations
+- Validation rules
+- Discount calculations
+- Authentication flows
+- Business logic edge cases
+
+## 📁 Project Structure
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── CouponController.php      # Main coupon logic
+│   │   ├── DashboardController.php   # Dashboard analytics
+│   │   └── ProfileController.php     # User management
+│   └── Requests/
+│       ├── StoreCouponRequest.php    # Create validation
+│       └── UpdateCouponRequest.php   # Update validation
+├── Models/
+│   ├── Coupon.php                    # Coupon business logic
+│   └── User.php                      # User model
+└── Providers/
+    └── AppServiceProvider.php
+
+resources/views/
+├── coupons/                          # Coupon-related views
+├── auth/                            # Authentication views
+├── layouts/                         # Layout templates
+└── components/                      # Reusable components
+
+database/
+├── migrations/                      # Database schema
+├── seeders/                         # Sample data
+└── factories/                       # Test data factories
+```
+
+## 🚀 Deployment
+
+### Production Checklist
+- [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] Configure production database
+- [ ] Run `php artisan config:cache`
+- [ ] Run `php artisan route:cache` 
+- [ ] Run `php artisan view:cache`
+- [ ] Set proper file permissions
+- [ ] Configure web server (Apache/Nginx)
+
+### Environment Variables
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_DATABASE=production_db
+DB_USERNAME=prod_user
+DB_PASSWORD=secure_password
+```
+
+## 🔧 Advanced Features
+
+### Soft Delete with Code Reuse
+The system implements intelligent soft deletes that allow coupon code reuse:
+
+```php
+// Database constraint includes deleted_at
+$table->unique(['code', 'deleted_at'], 'coupons_code_unique');
+
+// Model event modifies code on soft delete
+static::deleting(function (Coupon $coupon): void {
+    $suffix = '__d_' . $coupon->getKey() . '_' . now()->timestamp;
+    $coupon->code = Str::limit($coupon->code, 50 - strlen($suffix)) . $suffix;
+});
+```
+
+### Real-time Validation
+Frontend and backend validation work together:
+
+```php
+// Unique validation that respects soft deletes
+Rule::unique('coupons', 'code')->where(function ($query) {
+    $query->whereNull('deleted_at');
+})
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Run the test suite
+6. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- 📖 **[Documentation](DOCUMENTATION.md)** - Complete feature documentation
+- 🏗️ **[Architecture](ARCHITECTURE.md)** - System design and data flow
+- 🐛 **Issues** - Report bugs via GitHub Issues
+- 💬 **Discussions** - Feature requests and general questions
+
+---
+
+**Built with ❤️ using Laravel 12, Tailwind CSS, and modern web development practices.**
+
+*For detailed documentation, see [DOCUMENTATION.md](DOCUMENTATION.md)*

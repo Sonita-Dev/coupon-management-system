@@ -13,6 +13,7 @@ class DashboardController extends Controller
 
         $totalCoupons = Coupon::count();
 
+        // Active coupons: is_active=true AND (no end_date OR end_date >= today)
         $activeCoupons = Coupon::where('is_active', true)
             ->where(function ($query) use ($today) {
                 $query->whereNull('end_date')
@@ -20,8 +21,17 @@ class DashboardController extends Controller
             })
             ->count();
 
+        // Expired coupons: end_date < today (regardless of is_active status)
         $expiredCoupons = Coupon::whereNotNull('end_date')
             ->where('end_date', '<', $today)
+            ->count();
+
+        // Inactive coupons: is_active=false AND (no end_date OR end_date >= today)
+        $inactiveCoupons = Coupon::where('is_active', false)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', $today);
+            })
             ->count();
 
         $totalUsedCount = Coupon::sum('used_count');
@@ -44,6 +54,7 @@ class DashboardController extends Controller
             'totalCoupons',
             'activeCoupons',
             'expiredCoupons',
+            'inactiveCoupons',
             'totalUsedCount',
             'usageRate',
             'recentCoupons',
