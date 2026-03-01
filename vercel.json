@@ -10,12 +10,7 @@
   },
   "routes": [
     {
-      "src": "/build/(.*)",
-      "dest": "/build/$1"
-    },
-    {
-      "src": "/(favicon\\.ico|robots\\.txt|.*\\.(?:css|js|map|json|txt|xml|jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|ttf|eot))",
-      "dest": "/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
