@@ -36,3 +36,11 @@ services:
         value: sync
       - key: RUN_MIGRATIONS
         value: "true"
+      - key: SEED_ADMIN_ON_BOOT
+        value: "true"
+      - key: ADMIN_EMAIL
+        value: admin@gmail.com
+      - key: ADMIN_NAME
+        value: Admin
+      - key: ADMIN_PASSWORD
+        sync: false

@@ -6,6 +6,12 @@ if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   php artisan migrate --force --no-interaction
 fi
 
+# Ensure production always has a recoverable admin account.
+if [ "${SEED_ADMIN_ON_BOOT:-true}" = "true" ]; then
+  php artisan db:seed --class=AdminUserSeeder --force --no-interaction
+fi
+
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
