@@ -360,6 +360,7 @@ Notes:
 - Render web containers are ephemeral, so do not rely on persistent local storage.
 - For Aiven MySQL, use SSL in the URL (`ssl-mode=REQUIRED`) or set `MYSQL_ATTR_SSL_CA`.
 - If you need background jobs, create a separate Render worker service.
+- On Render free tier (no shell), keep `RUN_MIGRATIONS=true` so migrations run automatically at boot.
 
 ## 🔧 Advanced Features
 

@@ -34,3 +34,5 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: sync
+      - key: RUN_MIGRATIONS
+        value: "true"
