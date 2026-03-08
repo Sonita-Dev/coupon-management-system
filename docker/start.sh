@@ -11,6 +11,11 @@ if [ "${SEED_ADMIN_ON_BOOT:-true}" = "true" ]; then
   php artisan db:seed --class=AdminUserSeeder --force --no-interaction
 fi
 
+# Seed sample coupons when requested (idempotent seeder).
+if [ "${SEED_COUPONS_ON_BOOT:-true}" = "true" ]; then
+  php artisan db:seed --class=CouponSeeder --force --no-interaction
+fi
+
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache

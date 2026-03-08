@@ -133,8 +133,10 @@ class CouponSeeder extends Seeder
         ];
 
         foreach ($coupons as $data) {
-            Coupon::create($data);
+            Coupon::updateOrCreate(
+                ['code' => $data['code']],
+                $data
+            );
         }
     }
 }
-

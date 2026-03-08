@@ -38,6 +38,8 @@ services:
         value: "true"
       - key: SEED_ADMIN_ON_BOOT
         value: "true"
+      - key: SEED_COUPONS_ON_BOOT
+        value: "true"
       - key: ADMIN_EMAIL
         value: admin@gmail.com
       - key: ADMIN_NAME
