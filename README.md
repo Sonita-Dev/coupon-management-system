@@ -303,61 +303,53 @@ database/
 ### Production Checklist
 
 - [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
-- [ ] Configure production database
-- [ ] Run `php artisan config:cache`
-- [ ] Run `php artisan route:cache`
-- [ ] Run `php artisan view:cache`
-- [ ] Set proper file permissions
-- [ ] Configure web server (Apache/Nginx)
+- [ ] Set a valid `APP_KEY` (`php artisan key:generate --show`)
+- [ ] Configure Aiven database connection (`DB_URL` or `DB_*`)
+- [ ] Ensure SSL is enabled for Aiven (`DB_SSLMODE=require` for PostgreSQL or `ssl-mode=REQUIRED` in MySQL URL)
+- [ ] Deploy to Render using Docker (`Dockerfile` + `render.yaml`)
+- [ ] Run `php artisan migrate --force` on Render after first deploy
 
-### Environment Variables
+### Environment Variables (Render + Aiven)
 
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-domain.com
+Start from the dedicated template:
 
-DB_CONNECTION=mysql
-DB_HOST=your-db-host
-DB_DATABASE=production_db
-DB_USERNAME=prod_user
-DB_PASSWORD=secure_password
+```bash
+cp .env.render.example .env.render.local
 ```
 
-### Deploy on Vercel
-
-This repository is now prepared for Vercel with:
-
-- `vercel.json` for Laravel request routing and static asset serving
-- `api/index.php` as the Vercel PHP serverless entrypoint
-
-1. Push this repository to GitHub
-2. In Vercel, create a new project and import this repo.
-3. Set these project settings:
-    - Framework Preset: `Other`
-    - Install Command: `composer install --no-dev --optimize-autoloader && npm ci`
-    - Build Command: `npm run build`
-4. Add production environment variables in Vercel:
-
 ```env
 APP_ENV=production
 APP_DEBUG=false
+APP_URL=https://your-render-domain.onrender.com
 APP_KEY=base64:your_generated_key
-APP_URL=https://your-vercel-domain.vercel.app
 
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=coupon_management_system
-DB_USERNAME=nita
-DB_PASSWORD=root123
+DB_URL=mysql://avnadmin:password@mysql-xxxx.aivencloud.com:12345/defaultdb?ssl-mode=REQUIRED
+# or use DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD instead of DB_URL
+DB_SSLMODE=require
+MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt
 
 SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=sync
 ```
 
-5. Deploy once, then run migrations against your production database:
+### Deploy on Render
+
+This repository is now prepared for Render with:
+
+- `Dockerfile` for production container builds
+- `render.yaml` blueprint configuration
+- `docker/start.sh` startup command for Render runtime
+
+1. Push this repository to GitHub
+2. In Render, create a new **Blueprint** from this repo (Render reads `render.yaml`).
+3. Set required environment variables in Render:
+    - `APP_URL`
+    - `APP_KEY`
+    - `DB_URL` (recommended with Aiven)
+4. Deploy.
+5. Open Render Shell and run migrations:
 
 ```bash
 php artisan migrate --force
@@ -365,8 +357,9 @@ php artisan migrate --force
 
 Notes:
 
-- Vercel filesystem is ephemeral, so do not rely on local file persistence in `storage/`.
-- Use a managed external database (PlanetScale, Neon, Supabase, RDS, etc.).
+- Render web containers are ephemeral, so do not rely on persistent local storage.
+- For Aiven MySQL, use SSL in the URL (`ssl-mode=REQUIRED`) or set `MYSQL_ATTR_SSL_CA`.
+- If you need background jobs, create a separate Render worker service.
 
 ## 🔧 Advanced Features
 
