@@ -13,7 +13,7 @@ COPY public ./public
 COPY vite.config.js postcss.config.js tailwind.config.js ./
 RUN npm run build
 
-FROM php:8.3-cli-alpine
+FROM php:8.4-cli-alpine
 RUN apk add --no-cache bash \
     && apk add --no-cache mariadb-connector-c libpq oniguruma \
     && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS postgresql-dev mariadb-connector-c-dev oniguruma-dev \
