@@ -304,12 +304,11 @@ database/
 
 - [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
 - [ ] Set a valid `APP_KEY` (`php artisan key:generate --show`)
-- [ ] Configure Aiven database connection (`DB_URL` or `DB_*`)
-- [ ] Ensure SSL is enabled for Aiven (`DB_SSLMODE=require` for PostgreSQL or `ssl-mode=REQUIRED` in MySQL URL)
+- [ ] Configure database connection (`DB_*`)
 - [ ] Deploy to Render using Docker (`Dockerfile` + `render.yaml`)
 - [ ] Run `php artisan migrate --force` on Render after first deploy
 
-### Environment Variables (Render + Aiven)
+### Environment Variables (Render + Database)
 
 Start from the dedicated template:
 
@@ -324,10 +323,11 @@ APP_URL=https://your-render-domain.onrender.com
 APP_KEY=base64:your_generated_key
 
 DB_CONNECTION=mysql
-DB_URL=mysql://avnadmin:password@mysql-xxxx.aivencloud.com:12345/defaultdb?ssl-mode=REQUIRED
-# or use DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD instead of DB_URL
-DB_SSLMODE=require
-MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt
+DB_HOST=db-host.example.com
+DB_PORT=3306
+DB_DATABASE=database_name
+DB_USERNAME=db_user
+DB_PASSWORD=password
 
 SESSION_DRIVER=database
 CACHE_STORE=database
@@ -347,7 +347,11 @@ This repository is now prepared for Render with:
 3. Set required environment variables in Render:
     - `APP_URL`
     - `APP_KEY`
-    - `DB_URL` (recommended with Aiven)
+    - `DB_HOST`
+    - `DB_PORT`
+    - `DB_DATABASE`
+    - `DB_USERNAME`
+    - `DB_PASSWORD`
 4. Deploy.
 5. Open Render Shell and run migrations:
 
@@ -358,7 +362,6 @@ php artisan migrate --force
 Notes:
 
 - Render web containers are ephemeral, so do not rely on persistent local storage.
-- For Aiven MySQL, use SSL in the URL (`ssl-mode=REQUIRED`) or set `MYSQL_ATTR_SSL_CA`.
 - If you need background jobs, create a separate Render worker service.
 - On Render free tier (no shell), keep `RUN_MIGRATIONS=true` so migrations run automatically at boot.
 

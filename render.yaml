@@ -22,17 +22,19 @@ services:
         sync: false
       - key: DB_CONNECTION
         value: mysql
-      - key: DB_URL
+      - key: DB_HOST
         sync: false
-      - key: DATABASE_URL
+      - key: DB_PORT
+        value: "26654"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
         sync: false
       # Optional DNS bypass fallback (set only if hostname resolution fails).
       - key: DB_HOST_IP
         sync: false
-      - key: DB_SSLMODE
-        value: require
-      - key: MYSQL_ATTR_SSL_CA
-        value: /etc/ssl/certs/ca-certificates.crt
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE

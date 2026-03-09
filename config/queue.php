@@ -1,5 +1,11 @@
 <?php
 
+$cleanEnv = static function (string $key, mixed $default = null): mixed {
+    $value = env($key, $default);
+
+    return is_string($value) ? trim($value) : $value;
+};
+
 return [
 
     /*
@@ -103,7 +109,7 @@ return [
     */
 
     'batching' => [
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'database' => $cleanEnv('DB_CONNECTION', 'sqlite'),
         'table' => 'job_batches',
     ],
 
@@ -122,7 +128,7 @@ return [
 
     'failed' => [
         'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'database' => $cleanEnv('DB_CONNECTION', 'sqlite'),
         'table' => 'failed_jobs',
     ],
 

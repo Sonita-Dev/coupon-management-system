@@ -10,7 +10,12 @@ $cleanEnv = static function (string $key, mixed $default = null): mixed {
 
 $databaseUrl = $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL'));
 $forcedDbHost = $cleanEnv('DB_HOST_IP', $cleanEnv('DB_HOST_FALLBACK_IP'));
-$mysqlUrl = $forcedDbHost ? null : $databaseUrl;
+$hasDiscreteDbConfig = $cleanEnv('DB_HOST') !== ''
+    && $cleanEnv('DB_PORT') !== ''
+    && $cleanEnv('DB_DATABASE') !== ''
+    && $cleanEnv('DB_USERNAME') !== '';
+$connectionUrl = ($forcedDbHost || $hasDiscreteDbConfig) ? null : $databaseUrl;
+$mysqlUrl = $connectionUrl;
 $mysqlHost = $forcedDbHost ?: $cleanEnv('DB_HOST', '127.0.0.1');
 
 return [
@@ -27,7 +32,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $cleanEnv('DB_CONNECTION', 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -69,9 +74,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => [],
         ],
 
         'mariadb' => [
@@ -89,14 +92,12 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => [],
         ],
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => $databaseUrl,
+            'url' => $connectionUrl,
             'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
             'port' => $cleanEnv('DB_PORT', '5432'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),
@@ -106,12 +107,11 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => $cleanEnv('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
-            'url' => $databaseUrl,
+            'url' => $connectionUrl,
             'host' => $cleanEnv('DB_HOST', 'localhost'),
             'port' => $cleanEnv('DB_PORT', '1433'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),

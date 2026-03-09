@@ -5,7 +5,16 @@ log() {
   printf '%s\n' "$*"
 }
 
+trim_env_value() {
+  printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
 db_host_from_env() {
+  if [ -n "${DB_HOST:-}" ]; then
+    printf '%s' "$DB_HOST"
+    return
+  fi
+
   if [ -n "${DB_URL:-}" ]; then
     php -r '$host = parse_url((string) getenv("DB_URL"), PHP_URL_HOST); if (is_string($host)) { echo trim($host); }'
     return
@@ -16,9 +25,6 @@ db_host_from_env() {
     return
   fi
 
-  if [ -n "${DB_HOST:-}" ]; then
-    printf '%s' "$DB_HOST"
-  fi
 }
 
 wait_for_dns() {
@@ -104,6 +110,10 @@ hydrate_db_parts_from_url() {
   fi
 }
 
+if [ -n "${DB_CONNECTION:-}" ]; then
+  export DB_CONNECTION="$(trim_env_value "$DB_CONNECTION")"
+fi
+
 db_host="$(db_host_from_env | tr -d '\r\n')"
 if [ -n "$db_host" ] && [ "$db_host" != "localhost" ] && [ "$db_host" != "127.0.0.1" ] && ! is_ip_address "$db_host"; then
   if ! wait_for_dns "$db_host" 12 5; then
@@ -117,11 +127,14 @@ if [ -n "$db_host" ] && [ "$db_host" != "localhost" ] && [ "$db_host" != "127.0.
       unset DATABASE_URL
     else
       log "ERROR: database host is not resolvable: ${db_host}"
-      log "Set a valid DB_URL/DB_HOST in Render, or set DB_HOST_IP as a temporary fallback."
+      log "Set a valid DB_HOST in Render, or set DB_HOST_IP as a temporary fallback."
       exit 1
     fi
   fi
 fi
+
+# Clear stale caches before boot-time DB work so env changes always apply.
+php artisan optimize:clear
 
 # Free-tier friendly: run migrations at startup when shell/pre-deploy is unavailable.
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
@@ -138,7 +151,6 @@ if [ "${SEED_COUPONS_ON_BOOT:-true}" = "true" ]; then
   run_with_retry "php artisan db:seed --class=CouponSeeder --force --no-interaction" 3 5
 fi
 
-php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
