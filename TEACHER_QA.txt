@@ -1,0 +1,160 @@
+# Coupon Management System: Teacher Q&A Prep
+
+Use this as a viva/oral-defense script. Answers are tailored to the current implementation in this repository.
+
+## 1. Project Overview Questions
+
+### Q1) What is the main purpose of this system?
+It is a Laravel web application to create, manage, and redeem discount coupons. It supports full coupon CRUD, rule-based validation, and redemption simulation with discount calculation.
+
+### Q2) Who are the target users?
+Currently, any authenticated user can access coupon management and redemption features. There is no role-based access control yet.
+
+### Q3) Which tech stack did you use and why?
+I used Laravel 12, MySQL, Blade, Tailwind CSS, Alpine.js, and Vite. Laravel provides fast CRUD development, strong validation, and clean MVC structure, while Tailwind + Blade made UI development fast and consistent.
+
+### Q4) Is this a REST API project?
+Not yet. This is a server-rendered web app using Blade routes and controllers. There is an `api` folder but no implemented API endpoints.
+
+## 2. Architecture Questions
+
+### Q5) Which architecture pattern does this project follow?
+MVC. Models hold business logic (`Coupon`), controllers orchestrate requests (`CouponController`, `DashboardController`), and views render UI (Blade templates under `resources/views`).
+
+### Q6) How is routing organized?
+Web routes are in `routes/web.php`. Coupon and dashboard routes are grouped under `auth` and `verified` middleware. Coupon CRUD uses `Route::resource('coupons', CouponController::class)`.
+
+### Q7) Why did you use Form Requests?
+To centralize validation and keep controllers clean. `StoreCouponRequest` and `UpdateCouponRequest` hold field rules, including unique coupon checks that ignore soft-deleted records.
+
+### Q8) Where is coupon business logic implemented?
+In `app/Models/Coupon.php`, mainly in `isCurrentlyValid()` for rule checks and `calculateDiscount()` for discount math.
+
+## 3. Database Design Questions
+
+### Q9) What are key fields in the coupons table?
+`code`, `type` (`fixed` or `percent`), `value`, `start_date`, `end_date`, `min_order_amount`, `max_uses`, `used_count`, `is_active`, plus timestamps and `deleted_at` for soft deletes.
+
+### Q10) How do you support soft delete and code reuse?
+Two layers:
+1. Soft delete (`deleted_at`) keeps historical data.
+2. On delete, model event mutates `code` with a suffix like `__d_{id}_{timestamp}` so the original code can be reused safely.
+
+### Q11) Why change coupon code during soft delete instead of only relying on unique index?
+Because active code reuse was required. The code mutation guarantees that old deleted rows no longer block the original business code.
+
+### Q12) Any database-level limitation in current uniqueness strategy?
+Yes. The composite unique index on (`code`, `deleted_at`) does not fully enforce unique active codes in MySQL when `deleted_at` is `NULL`. App-level validation prevents most duplicates, but strict DB enforcement would need a different strategy.
+
+## 4. Coupon Logic Questions
+
+### Q13) How do you validate a coupon before applying it?
+`isCurrentlyValid($cartTotal)` checks:
+1. `is_active` is true
+2. start date is not in the future
+3. end date is not past
+4. minimum order condition
+5. usage limit (`used_count < max_uses` when max is set)
+
+### Q14) How is the discount calculated?
+If type is `percent`, discount = `cartTotal * (value / 100)`.  
+If type is `fixed`, discount = `value`.  
+Then it is capped at cart total and rounded to 2 decimals.
+
+### Q15) Why cap discount by cart total?
+To prevent negative totals, especially with large fixed discounts.
+
+### Q16) Is coupon code matching case-sensitive?
+Input is normalized with `strtoupper(trim(...))`, and query uses `whereRaw('UPPER(code) = ?')`, so matching is case-insensitive.
+
+### Q17) What happens after successful redemption?
+System calculates discount, computes new total, increments `used_count`, and returns result data in session for display.
+
+### Q18) What feedback do users get for failed redemption?
+Specific error messages: not found, inactive, not started, expired, minimum order not met, or max uses reached.
+
+## 5. UI/UX Questions
+
+### Q19) What main pages exist?
+Dashboard, coupon list, create/edit form, coupon detail view, and apply-coupon page.
+
+### Q20) Does the list page support filtering?
+Yes. It supports search by code (`q`) and status filter (`active`, `expired`, `inactive`), plus pagination (10 per page).
+
+### Q21) How is dashboard analytics computed?
+It shows total coupons, active/expired/inactive counts, total redemptions (`sum(used_count)`), average usage per coupon, recent coupons, and top redeemed coupons.
+
+### Q22) Any metrics caveat in dashboard?
+`usageRate` is named as a rate but computed as average uses per coupon (`totalUsedCount / totalCoupons`), not a percentage redemption rate.
+
+## 6. Security Questions
+
+### Q23) What security protections are in place?
+Auth middleware, CSRF protection in forms, Laravel validation, Eloquent parameter binding, and Blade auto-escaping.
+
+### Q24) Is email verification truly enforced?
+Routes use `verified` middleware, but `User` currently does not implement `MustVerifyEmail`. So practical enforcement is not active unless that interface is enabled.
+
+### Q25) Is authorization granular?
+No. There are no policies/roles yet. Any logged-in user can manage coupons. A production upgrade should add admin-only policy checks.
+
+### Q26) Any credential risk in seeders?
+Yes. `AdminUserSeeder` has fallback defaults (`admin@gmail.com`, `admin123`). In production, these must be overridden via environment variables.
+
+## 7. Testing Questions
+
+### Q27) How do you test this project?
+Using PHPUnit feature tests with `RefreshDatabase` for clean test isolation.
+
+### Q28) What critical test case exists for coupon reuse?
+`test_coupon_code_can_be_reused_after_soft_delete()` verifies that a code can be recreated after deletion.
+
+### Q29) What is the current test-suite status?
+Currently failing because `tests/Feature/CouponValidationTest.php` contains unresolved merge conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) causing a PHP syntax error.
+
+### Q30) How would you fix and strengthen tests?
+1. Resolve merge conflict in the test file.
+2. Add concurrency tests for `max_uses`.
+3. Add policy/authorization tests once RBAC is introduced.
+4. Add edge-case tests for date windows and minimum order logic.
+
+## 8. Deployment/DevOps Questions
+
+### Q31) How is deployment configured?
+There is a Dockerized setup with multi-stage build (`composer` + `node` + `php alpine`) and Render blueprint configuration in `render.yaml`.
+
+### Q32) What happens on container startup?
+`docker/start.sh` can run migrations, seed admin user, seed sample coupons, clear/cache config/routes/views, then start `php artisan serve`.
+
+### Q33) Why force HTTPS in production?
+`AppServiceProvider` calls `URL::forceScheme('https')` in production to avoid mixed-content/security issues.
+
+### Q34) What environment variables are essential in production?
+`APP_KEY`, `APP_URL`, `DB_URL` (or DB host credentials), and strong admin credentials (`ADMIN_PASSWORD`). Debug should be off.
+
+## 9. Critical Thinking Questions
+
+### Q35) If two users redeem a near-limit coupon at the same time, what risk exists?
+Race condition: both may pass validation before increment. Current logic is not transactional for the `max_uses` check + increment.
+
+### Q36) How would you solve that race condition?
+Use a DB transaction with row locking (`SELECT ... FOR UPDATE`) or a single atomic update condition like increment only when `used_count < max_uses`.
+
+### Q37) Why not store money as float?
+Float can introduce precision errors. This system stores values in `decimal(10,2)` in DB, which is correct for currency-like values.
+
+### Q38) What is one design tradeoff you made?
+I prioritized simple server-rendered Blade flow over API-first architecture for faster delivery and easier marking in a web programming course context.
+
+### Q39) If asked for your next 3 improvements, what would you say?
+1. Add RBAC so only admins can create/update/delete coupons.
+2. Make redemption concurrency-safe with transactional updates.
+3. Build API endpoints + frontend integration tests for broader extensibility.
+
+### Q40) What part are you most confident defending?
+The coupon validation and redemption logic: date-window checks, min-order rule, usage limit enforcement, discount capping, and soft-delete code reuse design.
+
+---
+
+## Quick 30-Second Project Pitch
+This project is a Laravel 12 coupon management web app with authenticated CRUD, robust validation, soft-delete-safe code reuse, and coupon redemption simulation. The core strength is centralized business logic in the `Coupon` model and clean request validation. Current improvement priorities are authorization roles, concurrency safety for redemption limits, and fixing the unresolved test conflict so CI can run reliably.

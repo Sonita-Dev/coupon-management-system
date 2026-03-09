@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Str;
 
+$cleanEnv = static function (string $key, mixed $default = null): mixed {
+    $value = env($key, $default);
+
+    return is_string($value) ? trim($value) : $value;
+};
+
 return [
 
     /*
@@ -33,8 +39,8 @@ return [
 
         'sqlite' => [
             'driver' => 'sqlite',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'database' => $cleanEnv('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => null,
@@ -45,12 +51,12 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
+            'port' => $cleanEnv('DB_PORT', '3306'),
+            'database' => $cleanEnv('DB_DATABASE', 'laravel'),
+            'username' => $cleanEnv('DB_USERNAME', 'root'),
+            'password' => $cleanEnv('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
@@ -65,12 +71,12 @@ return [
 
         'mariadb' => [
             'driver' => 'mariadb',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
+            'port' => $cleanEnv('DB_PORT', '3306'),
+            'database' => $cleanEnv('DB_DATABASE', 'laravel'),
+            'username' => $cleanEnv('DB_USERNAME', 'root'),
+            'password' => $cleanEnv('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
@@ -85,27 +91,27 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
+            'port' => $cleanEnv('DB_PORT', '5432'),
+            'database' => $cleanEnv('DB_DATABASE', 'laravel'),
+            'username' => $cleanEnv('DB_USERNAME', 'root'),
+            'password' => $cleanEnv('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'sslmode' => $cleanEnv('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '1433'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'host' => $cleanEnv('DB_HOST', 'localhost'),
+            'port' => $cleanEnv('DB_PORT', '1433'),
+            'database' => $cleanEnv('DB_DATABASE', 'laravel'),
+            'username' => $cleanEnv('DB_USERNAME', 'root'),
+            'password' => $cleanEnv('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
