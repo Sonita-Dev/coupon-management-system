@@ -26,6 +26,9 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      # Optional DNS bypass fallback (set only if hostname resolution fails).
+      - key: DB_HOST_IP
+        sync: false
       - key: DB_SSLMODE
         value: require
       - key: MYSQL_ATTR_SSL_CA

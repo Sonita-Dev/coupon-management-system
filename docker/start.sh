@@ -65,12 +65,61 @@ run_with_retry() {
   return 1
 }
 
+is_ip_address() {
+  candidate="$1"
+  is_ip="$(CHECK_IP="$candidate" php -r '$ip = (string) getenv("CHECK_IP"); echo filter_var($ip, FILTER_VALIDATE_IP) ? "1" : "0";')"
+  [ "$is_ip" = "1" ]
+}
+
+hydrate_db_parts_from_url() {
+  source_url="${DB_URL:-${DATABASE_URL:-}}"
+  if [ -z "$source_url" ]; then
+    return 0
+  fi
+
+  if [ -z "${DB_PORT:-}" ]; then
+    parsed_port="$(DB_SOURCE_URL="$source_url" php -r '$p = parse_url((string) getenv("DB_SOURCE_URL")); if (is_array($p) && isset($p["port"])) { echo (string) $p["port"]; }')"
+    if [ -n "$parsed_port" ]; then
+      export DB_PORT="$parsed_port"
+    fi
+  fi
+
+  if [ -z "${DB_DATABASE:-}" ]; then
+    parsed_database="$(DB_SOURCE_URL="$source_url" php -r '$p = parse_url((string) getenv("DB_SOURCE_URL")); if (is_array($p) && isset($p["path"])) { $db = ltrim((string) $p["path"], "/"); if ($db !== "") { echo $db; } }')"
+    if [ -n "$parsed_database" ]; then
+      export DB_DATABASE="$parsed_database"
+    fi
+  fi
+
+  if [ -z "${DB_USERNAME:-}" ]; then
+    parsed_username="$(DB_SOURCE_URL="$source_url" php -r '$p = parse_url((string) getenv("DB_SOURCE_URL")); if (is_array($p) && isset($p["user"])) { echo rawurldecode((string) $p["user"]); }')"
+    if [ -n "$parsed_username" ]; then
+      export DB_USERNAME="$parsed_username"
+    fi
+  fi
+
+  if [ -z "${DB_PASSWORD+x}" ]; then
+    parsed_password="$(DB_SOURCE_URL="$source_url" php -r '$p = parse_url((string) getenv("DB_SOURCE_URL")); if (is_array($p) && array_key_exists("pass", $p)) { echo rawurldecode((string) $p["pass"]); }')"
+    export DB_PASSWORD="$parsed_password"
+  fi
+}
+
 db_host="$(db_host_from_env | tr -d '\r\n')"
-if [ -n "$db_host" ] && [ "$db_host" != "localhost" ] && [ "$db_host" != "127.0.0.1" ]; then
+if [ -n "$db_host" ] && [ "$db_host" != "localhost" ] && [ "$db_host" != "127.0.0.1" ] && ! is_ip_address "$db_host"; then
   if ! wait_for_dns "$db_host" 12 5; then
-    log "ERROR: database host is not resolvable: ${db_host}"
-    log "Set a valid DB_URL/DB_HOST in Render before booting."
-    exit 1
+    fallback_db_ip="${DB_HOST_IP:-${DB_HOST_FALLBACK_IP:-}}"
+    if [ -n "$fallback_db_ip" ]; then
+      log "Database DNS failed for ${db_host}. Falling back to DB_HOST_IP=${fallback_db_ip}."
+      hydrate_db_parts_from_url
+      export DB_HOST="$fallback_db_ip"
+      export DB_HOST_IP="$fallback_db_ip"
+      unset DB_URL
+      unset DATABASE_URL
+    else
+      log "ERROR: database host is not resolvable: ${db_host}"
+      log "Set a valid DB_URL/DB_HOST in Render, or set DB_HOST_IP as a temporary fallback."
+      exit 1
+    fi
   fi
 fi
 

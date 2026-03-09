@@ -8,6 +8,11 @@ $cleanEnv = static function (string $key, mixed $default = null): mixed {
     return is_string($value) ? trim($value) : $value;
 };
 
+$databaseUrl = $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL'));
+$forcedDbHost = $cleanEnv('DB_HOST_IP', $cleanEnv('DB_HOST_FALLBACK_IP'));
+$mysqlUrl = $forcedDbHost ? null : $databaseUrl;
+$mysqlHost = $forcedDbHost ?: $cleanEnv('DB_HOST', '127.0.0.1');
+
 return [
 
     /*
@@ -39,7 +44,7 @@ return [
 
         'sqlite' => [
             'driver' => 'sqlite',
-            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'url' => $databaseUrl,
             'database' => $cleanEnv('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
@@ -51,8 +56,8 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
-            'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
+            'url' => $mysqlUrl,
+            'host' => $mysqlHost,
             'port' => $cleanEnv('DB_PORT', '3306'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),
             'username' => $cleanEnv('DB_USERNAME', 'root'),
@@ -71,8 +76,8 @@ return [
 
         'mariadb' => [
             'driver' => 'mariadb',
-            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
-            'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
+            'url' => $mysqlUrl,
+            'host' => $mysqlHost,
             'port' => $cleanEnv('DB_PORT', '3306'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),
             'username' => $cleanEnv('DB_USERNAME', 'root'),
@@ -91,7 +96,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'url' => $databaseUrl,
             'host' => $cleanEnv('DB_HOST', '127.0.0.1'),
             'port' => $cleanEnv('DB_PORT', '5432'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),
@@ -106,7 +111,7 @@ return [
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
-            'url' => $cleanEnv('DB_URL', $cleanEnv('DATABASE_URL')),
+            'url' => $databaseUrl,
             'host' => $cleanEnv('DB_HOST', 'localhost'),
             'port' => $cleanEnv('DB_PORT', '1433'),
             'database' => $cleanEnv('DB_DATABASE', 'laravel'),
